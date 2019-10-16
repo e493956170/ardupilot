@@ -92,6 +92,7 @@ void SITL_State::_sitl_setup(const char *home_str)
             gimbal = new SITL::Gimbal(_sitl->state);
         }
 
+        sitl_model->set_buzzer(&_sitl->buzzer_sim);
         sitl_model->set_sprayer(&_sitl->sprayer_sim);
         sitl_model->set_gripper_servo(&_sitl->gripper_sim);
         sitl_model->set_gripper_epm(&_sitl->gripper_epm_sim);
@@ -204,7 +205,8 @@ void SITL_State::_fdm_input_step(void)
 void SITL_State::wait_clock(uint64_t wait_time_usec)
 {
     while (AP_HAL::micros64() < wait_time_usec) {
-        if (hal.scheduler->in_main_thread()) {
+        if (hal.scheduler->in_main_thread() ||
+            Scheduler::from(hal.scheduler)->semaphore_wait_hack_required()) {
             _fdm_input_step();
         } else {
             usleep(1000);

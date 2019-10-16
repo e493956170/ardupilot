@@ -14,6 +14,12 @@
 #include <AP_Common/Location.h>
 
 
+#if !defined(AP_TERRAIN_AVAILABLE) || (AP_TERRAIN_AVAILABLE != 1)
+  #error Scripting requires terrain to be available
+
+#endif // !defined(AP_TERRAIN_AVAILABLE) || (AP_TERRAIN_AVAILABLE != 1)
+
+
 static int binding_argcheck(lua_State *L, int expected_arg_count) {
     const int args = lua_gettop(L);
     if (args > expected_arg_count) {
@@ -465,6 +471,31 @@ const luaL_Reg Location_meta[] = {
     {"get_distance", Location_get_distance},
     {NULL, NULL}
 };
+
+static int GCS_set_message_interval(lua_State *L) {
+    GCS * ud = GCS::get_singleton();
+    if (ud == nullptr) {
+        return luaL_argerror(L, 1, "gcs not supported on this firmware");
+    }
+
+    binding_argcheck(L, 4);
+    const lua_Integer raw_data_2 = luaL_checkinteger(L, 2);
+    luaL_argcheck(L, ((raw_data_2 >= MAX(0, 0)) && (raw_data_2 <= MIN(MAVLINK_COMM_NUM_BUFFERS, UINT8_MAX))), 2, "argument out of range");
+    const uint8_t data_2 = static_cast<uint8_t>(raw_data_2);
+    const uint32_t raw_data_3 = *check_uint32_t(L, 3);
+    luaL_argcheck(L, ((raw_data_3 >= MAX(0U, 0U)) && (raw_data_3 <= MIN(UINT32_MAX, UINT32_MAX))), 3, "argument out of range");
+    const uint32_t data_3 = static_cast<uint32_t>(raw_data_3);
+    const lua_Integer raw_data_4 = luaL_checkinteger(L, 4);
+    luaL_argcheck(L, ((raw_data_4 >= MAX(-1, INT32_MIN)) && (raw_data_4 <= MIN(INT32_MAX, INT32_MAX))), 4, "argument out of range");
+    const int32_t data_4 = raw_data_4;
+    const MAV_RESULT &data = ud->set_message_interval(
+            data_2,
+            data_3,
+            data_4);
+
+    lua_pushinteger(L, data);
+    return 1;
+}
 
 static int GCS_send_text(lua_State *L) {
     GCS * ud = GCS::get_singleton();
@@ -1512,6 +1543,7 @@ static int AP_AHRS_get_roll(lua_State *L) {
 }
 
 const luaL_Reg GCS_meta[] = {
+    {"set_message_interval", GCS_set_message_interval},
     {"send_text", GCS_send_text},
     {NULL, NULL}
 };

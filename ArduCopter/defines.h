@@ -30,32 +30,6 @@ enum autopilot_yaw_mode {
 #define HIL_MODE_DISABLED               0
 #define HIL_MODE_SENSORS                1
 
-// Auto Pilot Modes enumeration
-enum control_mode_t {
-    STABILIZE =     0,  // manual airframe angle with manual throttle
-    ACRO =          1,  // manual body-frame angular rate with manual throttle
-    ALT_HOLD =      2,  // manual airframe angle with automatic throttle
-    AUTO =          3,  // fully automatic waypoint control using mission commands
-    GUIDED =        4,  // fully automatic fly to coordinate or fly at velocity/direction using GCS immediate commands
-    LOITER =        5,  // automatic horizontal acceleration with automatic throttle
-    RTL =           6,  // automatic return to launching point
-    CIRCLE =        7,  // automatic circular flight with automatic throttle
-    LAND =          9,  // automatic landing with horizontal position control
-    DRIFT =        11,  // semi-automous position, yaw and throttle control
-    SPORT =        13,  // manual earth-frame angular rate control with manual throttle
-    FLIP =         14,  // automatically flip the vehicle on the roll axis
-    AUTOTUNE =     15,  // automatically tune the vehicle's roll and pitch gains
-    POSHOLD =      16,  // automatic position hold with manual override, with automatic throttle
-    BRAKE =        17,  // full-brake using inertial/GPS system, no pilot input
-    THROW =        18,  // throw to launch mode using inertial/GPS system, no pilot input
-    AVOID_ADSB =   19,  // automatic avoidance of obstacles in the macro scale - e.g. full-sized aircraft
-    GUIDED_NOGPS = 20,  // guided mode but only accepts attitude and altitude
-    SMART_RTL =    21,  // SMART_RTL returns to home by retracing its steps
-    FLOWHOLD  =    22,  // FLOWHOLD holds position with optical flow without rangefinder
-    FOLLOW    =    23,  // follow attempts to follow another vehicle or ground station
-    ZIGZAG    =    24,  // ZIGZAG mode is able to fly in a zigzag manner with predefined point A and point B
-};
-
 enum mode_reason_t {
     MODE_REASON_UNKNOWN=0,
     MODE_REASON_TX_COMMAND,
@@ -120,7 +94,8 @@ enum tuning_func {
     TUNING_RATE_YAW_FF =                54, // body frame yaw rate controller FF term
     TUNING_RATE_MOT_YAW_HEADROOM =      55, // motors yaw headroom minimum
     TUNING_RATE_YAW_FILT =              56, // yaw rate input filter
-    TUNING_WINCH =                      57  // winch control (not actually a value to be tuned)
+    TUNING_WINCH =                      57, // winch control (not actually a value to be tuned)
+    TUNING_SYSTEM_ID_MAGNITUDE =        58  // magnitude of the system ID signal
 };
 
 // Acro Trainer types
@@ -204,8 +179,6 @@ enum DevOptions {
 
 //  Logging parameters
 enum LoggingParameters {
-     TYPE_AIRSTART_MSG,
-     TYPE_GROUNDSTART_MSG,
      LOG_CONTROL_TUNING_MSG,
      LOG_DATA_INT16_MSG,
      LOG_DATA_UINT16_MSG,
@@ -217,6 +190,8 @@ enum LoggingParameters {
      LOG_HELI_MSG,
      LOG_PRECLAND_MSG,
      LOG_GUIDEDTARGET_MSG,
+     LOG_SYSIDD_MSG,
+     LOG_SYSIDS_MSG,
 };
 
 #define MASK_LOG_ATTITUDE_FAST          (1<<0)

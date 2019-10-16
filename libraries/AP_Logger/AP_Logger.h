@@ -4,10 +4,12 @@
 #pragma once
 
 #include <AP_HAL/AP_HAL.h>
+#include <AP_AHRS/AP_AHRS.h>
+#include <AP_AHRS/AP_AHRS_DCM.h>
+#include <AP_AHRS/AP_AHRS_NavEKF.h>
 #include <AP_Common/AP_Common.h>
 #include <AP_Param/AP_Param.h>
 #include <AP_InertialSensor/AP_InertialSensor.h>
-#include <AP_AHRS/AP_AHRS.h>
 #include <AP_Mission/AP_Mission.h>
 #include <AP_RPM/AP_RPM.h>
 #include <AP_Logger/LogStructure.h>
@@ -22,6 +24,8 @@
 #include "LoggerMessageWriter.h"
 
 class AP_Logger_Backend;
+class AP_AHRS;
+class AP_AHRS_View;
 
 // do not do anything here apart from add stuff; maintaining older
 // entries means log analysis is easier
@@ -240,9 +244,6 @@ public:
     void Write_Power(void);
     void Write_AHRS2(AP_AHRS &ahrs);
     void Write_POS(AP_AHRS &ahrs);
-#if AP_AHRS_NAVEKF_AVAILABLE
-    void Write_EKF_Timing(const char *name, uint64_t time_us, const struct ekf_timing &timing);
-#endif
     void Write_Radio(const mavlink_radio_t &packet);
     void Write_Message(const char *message);
     void Write_MessageF(const char *fmt, ...);
@@ -257,6 +258,7 @@ public:
     void Write_Mode(uint8_t mode, uint8_t reason);
 
     void Write_EntireMission();
+    void Write_Command(const mavlink_command_int_t &packet, MAV_RESULT result, bool was_command_long=false);
     void Write_Mission_Cmd(const AP_Mission &mission,
                                const AP_Mission::Mission_Command &cmd);
     void Write_Origin(uint8_t origin_type, const Location &loc);
@@ -274,7 +276,7 @@ public:
     void Write_Proximity(AP_Proximity &proximity);
     void Write_SRTL(bool active, uint16_t num_points, uint16_t max_points, uint8_t action, const Vector3f& point);
     void Write_OABendyRuler(bool active, float target_yaw, float margin, const Location &final_dest, const Location &oa_dest);
-    void Write_OADijkstra(uint8_t state, uint8_t curr_point, uint8_t tot_points, const Location &final_dest, const Location &oa_dest);
+    void Write_OADijkstra(uint8_t state, uint8_t error_id, uint8_t curr_point, uint8_t tot_points, const Location &final_dest, const Location &oa_dest);
 
     void Write(const char *name, const char *labels, const char *fmt, ...);
     void Write(const char *name, const char *labels, const char *units, const char *mults, const char *fmt, ...);
@@ -328,6 +330,7 @@ public:
         AP_Int8 log_disarmed;
         AP_Int8 log_replay;
         AP_Int8 mav_bufsize; // in kilobytes
+        AP_Int16 file_timeout; // in seconds
     } _params;
 
     const struct LogStructure *structure(uint16_t num) const;

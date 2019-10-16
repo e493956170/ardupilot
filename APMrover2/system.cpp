@@ -60,6 +60,8 @@ void Rover::init_ardupilot()
     g2.gripper.init();
 #endif
 
+    g2.fence.init();
+
     // initialise notify system
     notify.init();
     notify_mode(control_mode);
@@ -74,8 +76,6 @@ void Rover::init_ardupilot()
     g2.airspeed.init();
 
     g2.windvane.init(serial_manager);
-
-    rover.g2.sailboat.init();
 
     // init baro before we start the GCS, so that the CLI baro test works
     barometer.init();
@@ -129,7 +129,7 @@ void Rover::init_ardupilot()
 
 #if MOUNT == ENABLED
     // initialise camera mount
-    camera_mount.init(serial_manager);
+    camera_mount.init();
 #endif
 
     /*
@@ -154,6 +154,8 @@ void Rover::init_ardupilot()
 
     // initialise rc channels
     rc().init();
+
+    rover.g2.sailboat.init();
 
     // disable safety if requested
     BoardConfig.init_safety();
